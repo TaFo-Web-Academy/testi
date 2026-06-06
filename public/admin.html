@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Админ Панель - Анкета</title>
+  <style>
+    :root {
+      --bg: #121212;
+      --surface: #1e1e1e;
+      --surface-light: #2d2d2d;
+      --primary: #FFA500;
+      --primary-hover: #cc8400;
+      --text: #f3f4f6;
+      --text-secondary: #9ca3af;
+      --border: #333333;
+      --danger: #ef4444;
+      --success: #10b981;
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 20px;
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    
+    .stat-card {
+      background: var(--surface);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+    
+    .stat-card .label { color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 8px; }
+    .stat-card .value { font-size: 1.8rem; font-weight: bold; color: var(--primary); }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--surface);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    
+    th, td {
+      padding: 14px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    th {
+      background: var(--surface-light);
+      color: var(--text-secondary);
+      font-weight: 500;
+      font-size: 0.85rem;
+    }
+    
+    tr:hover { background: var(--surface-light); }
+    .row-clickable { cursor: pointer; }
+    
+    .badge {
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: bold;
+    }
+    .badge.finished { background: rgba(16,185,129,0.2); color: var(--success); }
+    .badge.active { background: rgba(255,165,0,0.2); color: var(--primary); }
+    
+    .btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      background: var(--primary);
+      color: #121212;
+    }
+    .btn:hover { background: var(--primary-hover); }
+    
+    /* ===== DETAILS MODAL ===== */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.75); z-index: 1000;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px; backdrop-filter: blur(4px);
+    }
+    .modal-overlay.hidden { display: none; }
+    
+    .modal-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      max-width: 680px; width: 100%; max-height: 85vh;
+      overflow-y: auto; box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+    }
+    
+    .modal-header {
+      padding: 24px 28px;
+      border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: flex-start;
+      position: sticky; top: 0; background: var(--surface); z-index: 1;
+    }
+    
+    .modal-header h2 { color: var(--primary); }
+    .modal-close {
+      background: var(--surface-light); border: none; color: var(--text);
+      font-size: 1.2rem; width: 36px; height: 36px; border-radius: 10px; cursor: pointer;
+    }
+    
+    .modal-body { padding: 20px 28px 28px; }
+    .qa-item { margin-bottom: 22px; padding-bottom: 22px; border-bottom: 1px solid var(--border); }
+    .qa-question { font-size: 0.82rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; }
+    .qa-answer {
+      font-size: 0.95rem; color: var(--text); background: var(--surface-light);
+      padding: 12px 16px; border-radius: 12px; border-left: 3px solid var(--primary);
+    }
+    .qa-answer.empty { color: var(--text-secondary); font-style: italic; border-left-color: var(--border); }
+    .qa-chip {
+      display: inline-block; background: rgba(255,165,0,0.15); color: var(--primary);
+      padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; margin: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>Анкета - Панель</h1>
+    <div>
+      <button class="btn" onclick="window.open('/api/admin/export?format=csv', '_blank')">Скачать CSV</button>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="label">Всего сессий</div>
+      <div class="value" id="statTotal">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Завершили</div>
+      <div class="value" id="statFinished">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">В процессе</div>
+      <div class="value" id="statActive">0</div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID / Имя</th>
+        <th>Дата</th>
+        <th>Прогресс</th>
+        <th>Статус</th>
+      </tr>
+    </thead>
+    <tbody id="sessionsTable">
+      <tr><td colspan="4" style="text-align:center;">Загрузка...</td></tr>
+    </tbody>
+  </table>
+
+  <!-- МОДАЛКА -->
+  <div class="modal-overlay hidden" id="detailsModal" onclick="if(event.target===this)closeModal()">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div>
+          <h2 id="modalUserName">Пользователь</h2>
+          <p id="modalSessionId" style="font-size:0.8rem; color:#9ca3af;"></p>
+        </div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <script>
+    const questionLabels = [
+      "1. Дар муносибатҳо ҳозир дарди асосии ту чист?",
+      "2. Кадом ҳис бештар дар ту такрор мешавад?",
+      "3. Вақте мард сард мешавад ё камтар менависад, ту чӣ кор мекунӣ?",
+      "4. Аз ҳама бештар аз чӣ метарсӣ?",
+      "5. Вақте мард дур мешавад, дар бадани ту чӣ мешавад?",
+      "6. Барои нигоҳ доштани мард чӣ кор мекунӣ, ки баъд пушаймон мешавӣ?",
+      "7. Чаро фикр мекунӣ мард туро пурра интихоб намекунад?",
+      "8. Дар назди мард ту бештар кӣ мешавӣ?",
+      "9. Кадом рафтори мард туро сахт мешиканад?",
+      "10. Кадом сухан ё ҷумла то имрӯз дар сарат садо медиҳад?",
+      "11. Дар кӯдакӣ бештар аз кӣ шикастӣ?",
+      "12. Бори аввал кай худро нолозим, нодида ё беқадр ҳис кардӣ?",
+      "13. Ту дар бораи худ чӣ фикри дарднок дорӣ?",
+      "14. Пеш барои ин мушкил чӣ кор кардӣ ва чӣ кӯмак кард?",
+      "15. Чӣ кӯмак накард ё ҳатто бадтар кард?",
+      "16. Агар ин мушкил ҳал нашавад, баъди 1 сол зиндагият чӣ мешавад?",
+      "17. Агар ин мушкил ҳал шавад, ту чӣ гуна зан мешавӣ?",
+      "18. Ба кадом формат бештар бовар мекунӣ?",
+      "19. Барои ҳалли ин дард чӣ қадар маблағ дода метавонӣ?",
+      "20. Аз ман ҳамчун мутахассис чӣ интизор мешавӣ?"
+    ];
+
+    async function loadData() {
+      const statsRes = await fetch('/api/admin/stats');
+      const stats = await statsRes.json();
+      document.getElementById('statTotal').textContent = stats.totalSessions || 0;
+      document.getElementById('statFinished').textContent = stats.finishedSessions || 0;
+      document.getElementById('statActive').textContent = stats.notFinishedSessions || 0;
+
+      const sessionsRes = await fetch('/api/admin/recent');
+      const sessions = await sessionsRes.json();
+      
+      let html = '';
+      sessions.forEach(s => {
+        const date = new Date(s.created_at).toLocaleString('ru');
+        const progress = s.status === 'finished' ? '20/20 ✅' : \`\${s.current_q}/20\`;
+        html += \`
+          <tr class="row-clickable" onclick="openSessionModal('\${s.id}')">
+            <td>
+              <strong>\${s.user_name || 'Аноним'}</strong><br>
+              <span style="font-size:0.75rem; color:#9ca3af;">\${s.id}</span>
+            </td>
+            <td>\${date}</td>
+            <td>\${progress}</td>
+            <td><span class="badge \${s.status}">\${s.status === 'finished' ? 'Завершён' : 'Активен'}</span></td>
+          </tr>
+        \`;
+      });
+      document.getElementById('sessionsTable').innerHTML = html || '<tr><td colspan="4">Пусто</td></tr>';
+    }
+
+    async function openSessionModal(sessionId) {
+      const res = await fetch(\`/api/session/\${sessionId}\`);
+      const session = await res.json();
+      
+      document.getElementById('modalUserName').textContent = session.user_name || 'Аноним';
+      document.getElementById('modalSessionId').textContent = session.id;
+
+      let bodyHtml = '';
+      questionLabels.forEach((label, i) => {
+        const ans = session.answers[i];
+        let ansHtml = '';
+        if (ans === undefined || ans === null || ans === '') {
+          ansHtml = '<div class="qa-answer empty">— (нет ответа)</div>';
+        } else if (Array.isArray(ans)) {
+          if (ans.length === 0) ansHtml = '<div class="qa-answer empty">— (нет ответа)</div>';
+          else ansHtml = '<div>' + ans.map(a => \`<span class="qa-chip">\${a}</span>\`).join('') + '</div>';
+        } else {
+          ansHtml = \`<div class="qa-answer">\${String(ans).replace(/\\n/g, '<br>')}</div>\`;
+        }
+        bodyHtml += \`<div class="qa-item"><div class="qa-question">\${label}</div>\${ansHtml}</div>\`;
+      });
+
+      document.getElementById('modalBody').innerHTML = bodyHtml;
+      document.getElementById('detailsModal').classList.remove('hidden');
+    }
+
+    function closeModal() { document.getElementById('detailsModal').classList.add('hidden'); }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+    loadData();
+    setInterval(loadData, 15000);
+  </script>
+</body>
+</html>
