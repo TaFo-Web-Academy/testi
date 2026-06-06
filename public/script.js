@@ -319,9 +319,9 @@ function showResult() {
       <div class="result-emoji">✅</div>
       <h2 class="result-title">Ташаккур, ${userName || 'дӯст'}!</h2>
       <p class="result-description">
-        Ҷавобҳои шумо қабул шуд.<br><br>
-        Мо онҳоро барои сохтани барнома истифода хоҳем кард.
+        Ҷавобҳои шумо қабул шуд.
       </p>
+      <a href="https://t.me/jannat_abdullaeva_kanal" class="telegram-link" style="margin-top:20px; display:inline-block;">Ворид шудан ба дарс</a>
     </div>
   `;
 }
