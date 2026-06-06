@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Анкета</title>
+  <title>Анкетаи Баъди Тест</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -20,12 +20,18 @@
     <div class="counter" id="counter" style="display: none;"></div>
 
     <main id="mainContent">
-      <!-- Контент будет рендериться через JS -->
+      <div style="text-align:center; padding: 40px 0; color: #9ca3af;">
+        <div class="spinner"></div>
+        <p style="margin-top: 16px;">Боргузорӣ...</p>
+      </div>
     </main>
 
-    <button id="nextBtn" class="btn-primary" disabled>Давом додан</button>
+    <button id="nextBtn" class="btn-primary" disabled style="display:none;">Давом додан</button>
   </div>
 
+  <!-- Firebase SDK (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

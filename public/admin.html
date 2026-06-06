@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Админ Панель - Анкета</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #121212;
@@ -13,90 +14,38 @@
       --text: #f3f4f6;
       --text-secondary: #9ca3af;
       --border: #333333;
-      --danger: #ef4444;
       --success: #10b981;
     }
-    
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      padding: 20px;
-    }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 20px; }
     
     .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border);
     }
     
     .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin-bottom: 24px;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;
     }
-    
     .stat-card {
-      background: var(--surface);
-      padding: 20px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
+      background: var(--surface); padding: 20px; border-radius: 12px; border: 1px solid var(--border);
     }
-    
     .stat-card .label { color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 8px; }
     .stat-card .value { font-size: 1.8rem; font-weight: bold; color: var(--primary); }
     
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: var(--surface);
-      border-radius: 12px;
-      overflow: hidden;
-    }
+    table { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: 12px; overflow: hidden; }
+    th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+    th { background: var(--surface-light); color: var(--text-secondary); font-weight: 500; font-size: 0.85rem; }
+    tr:hover { background: var(--surface-light); cursor: pointer; }
     
-    th, td {
-      padding: 14px 16px;
-      text-align: left;
-      border-bottom: 1px solid var(--border);
-    }
-    
-    th {
-      background: var(--surface-light);
-      color: var(--text-secondary);
-      font-weight: 500;
-      font-size: 0.85rem;
-    }
-    
-    tr:hover { background: var(--surface-light); }
-    .row-clickable { cursor: pointer; }
-    
-    .badge {
-      padding: 4px 8px;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      font-weight: bold;
-    }
+    .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; }
     .badge.finished { background: rgba(16,185,129,0.2); color: var(--success); }
     .badge.active { background: rgba(255,165,0,0.2); color: var(--primary); }
     
-    .btn {
-      padding: 8px 16px;
-      border-radius: 8px;
-      border: none;
-      font-weight: bold;
-      cursor: pointer;
-      background: var(--primary);
-      color: #121212;
-    }
+    .btn { padding: 8px 16px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; background: var(--primary); color: #121212; }
     .btn:hover { background: var(--primary-hover); }
-    
-    /* ===== DETAILS MODAL ===== */
+
+    /* Modal */
     .modal-overlay {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(0,0,0,0.75); z-index: 1000;
@@ -104,28 +53,20 @@
       padding: 20px; backdrop-filter: blur(4px);
     }
     .modal-overlay.hidden { display: none; }
-    
     .modal-box {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      max-width: 680px; width: 100%; max-height: 85vh;
-      overflow-y: auto; box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+      background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+      max-width: 680px; width: 100%; max-height: 85vh; overflow-y: auto;
     }
-    
     .modal-header {
-      padding: 24px 28px;
-      border-bottom: 1px solid var(--border);
+      padding: 24px 28px; border-bottom: 1px solid var(--border);
       display: flex; justify-content: space-between; align-items: flex-start;
       position: sticky; top: 0; background: var(--surface); z-index: 1;
     }
-    
     .modal-header h2 { color: var(--primary); }
     .modal-close {
       background: var(--surface-light); border: none; color: var(--text);
       font-size: 1.2rem; width: 36px; height: 36px; border-radius: 10px; cursor: pointer;
     }
-    
     .modal-body { padding: 20px 28px 28px; }
     .qa-item { margin-bottom: 22px; padding-bottom: 22px; border-bottom: 1px solid var(--border); }
     .qa-question { font-size: 0.82rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; }
@@ -143,57 +84,53 @@
 <body>
 
   <div class="header">
-    <h1>Анкета - Панель</h1>
+    <h1>Анкета - Панель (Firebase)</h1>
     <div>
-      <button class="btn" onclick="window.open('/api/admin/export?format=csv', '_blank')">Скачать CSV</button>
+      <button class="btn" onclick="exportCSV()">Скачать CSV</button>
     </div>
   </div>
 
   <div class="stats-grid">
-    <div class="stat-card">
-      <div class="label">Всего сессий</div>
-      <div class="value" id="statTotal">0</div>
-    </div>
-    <div class="stat-card">
-      <div class="label">Завершили</div>
-      <div class="value" id="statFinished">0</div>
-    </div>
-    <div class="stat-card">
-      <div class="label">В процессе</div>
-      <div class="value" id="statActive">0</div>
-    </div>
+    <div class="stat-card"><div class="label">Всего сессий</div><div class="value" id="statTotal">0</div></div>
+    <div class="stat-card"><div class="label">Завершили</div><div class="value" id="statFinished">0</div></div>
+    <div class="stat-card"><div class="label">В процессе</div><div class="value" id="statActive">0</div></div>
   </div>
 
   <table>
-    <thead>
-      <tr>
-        <th>ID / Имя</th>
-        <th>Дата</th>
-        <th>Прогресс</th>
-        <th>Статус</th>
-      </tr>
-    </thead>
-    <tbody id="sessionsTable">
-      <tr><td colspan="4" style="text-align:center;">Загрузка...</td></tr>
-    </tbody>
+    <thead><tr><th>Имя</th><th>Дата</th><th>Прогресс</th><th>Статус</th></tr></thead>
+    <tbody id="sessionsTable"><tr><td colspan="4" style="text-align:center;">Загрузка...</td></tr></tbody>
   </table>
 
-  <!-- МОДАЛКА -->
+  <!-- Modal -->
   <div class="modal-overlay hidden" id="detailsModal" onclick="if(event.target===this)closeModal()">
     <div class="modal-box">
       <div class="modal-header">
-        <div>
-          <h2 id="modalUserName">Пользователь</h2>
-          <p id="modalSessionId" style="font-size:0.8rem; color:#9ca3af;"></p>
-        </div>
+        <div><h2 id="modalUserName">Пользователь</h2></div>
         <button class="modal-close" onclick="closeModal()">✕</button>
       </div>
       <div class="modal-body" id="modalBody"></div>
     </div>
   </div>
 
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  
   <script>
-    const questionLabels = [
+    const firebaseConfig = {
+      apiKey: "AIzaSyD19JGl5WQ6J9DluiZ2h5tS2-4XOQK_JKc",
+      authDomain: "anketa-roygon.firebaseapp.com",
+      projectId: "anketa-roygon",
+      storageBucket: "anketa-roygon.firebasestorage.app",
+      messagingSenderId: "336789061218",
+      appId: "1:336789061218:web:3c3e226a076705a2bedb3b",
+      measurementId: "G-KFKRE3GZ40"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const questions = [
       "1. Дар муносибатҳо ҳозир дарди асосии ту чист?",
       "2. Кадом ҳис бештар дар ту такрор мешавад?",
       "3. Вақте мард сард мешавад ё камтар менависад, ту чӣ кор мекунӣ?",
@@ -216,66 +153,104 @@
       "20. Аз ман ҳамчун мутахассис чӣ интизор мешавӣ?"
     ];
 
-    async function loadData() {
-      const statsRes = await fetch('/api/admin/stats');
-      const stats = await statsRes.json();
-      document.getElementById('statTotal').textContent = stats.totalSessions || 0;
-      document.getElementById('statFinished').textContent = stats.finishedSessions || 0;
-      document.getElementById('statActive').textContent = stats.notFinishedSessions || 0;
+    let allSessions = [];
 
-      const sessionsRes = await fetch('/api/admin/recent');
-      const sessions = await sessionsRes.json();
+    db.collection('sessions').orderBy('updatedAt', 'desc').onSnapshot(snapshot => {
+      allSessions = [];
+      let finished = 0, active = 0;
       
-      let html = '';
-      sessions.forEach(s => {
-        const date = new Date(s.created_at).toLocaleString('ru');
-        const progress = s.status === 'finished' ? '20/20 ✅' : \`\${s.current_q}/20\`;
-        html += \`
-          <tr class="row-clickable" onclick="openSessionModal('\${s.id}')">
-            <td>
-              <strong>\${s.user_name || 'Аноним'}</strong><br>
-              <span style="font-size:0.75rem; color:#9ca3af;">\${s.id}</span>
-            </td>
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        allSessions.push({ id: doc.id, ...data });
+        if(data.status === 'finished') finished++; else active++;
+      });
+
+      document.getElementById('statTotal').textContent = allSessions.length;
+      document.getElementById('statFinished').textContent = finished;
+      document.getElementById('statActive').textContent = active;
+      
+      renderTable();
+    });
+
+    function renderTable() {
+      const tbody = document.getElementById('sessionsTable');
+      if (allSessions.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Нет данных</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = allSessions.map(s => {
+        const date = s.createdAt ? s.createdAt.toDate().toLocaleString('ru') : '';
+        const progress = s.status === 'finished' ? '20/20 ✅' : \`\${s.currentQ || 0}/20\`;
+        return \`
+          <tr onclick="openModal('\${s.id}')">
+            <td><strong>\${s.userName || 'Аноним'}</strong></td>
             <td>\${date}</td>
             <td>\${progress}</td>
             <td><span class="badge \${s.status}">\${s.status === 'finished' ? 'Завершён' : 'Активен'}</span></td>
           </tr>
         \`;
-      });
-      document.getElementById('sessionsTable').innerHTML = html || '<tr><td colspan="4">Пусто</td></tr>';
+      }).join('');
     }
 
-    async function openSessionModal(sessionId) {
-      const res = await fetch(\`/api/session/\${sessionId}\`);
-      const session = await res.json();
+    function openModal(id) {
+      const session = allSessions.find(s => s.id === id);
+      if(!session) return;
       
-      document.getElementById('modalUserName').textContent = session.user_name || 'Аноним';
-      document.getElementById('modalSessionId').textContent = session.id;
-
-      let bodyHtml = '';
-      questionLabels.forEach((label, i) => {
-        const ans = session.answers[i];
+      document.getElementById('modalUserName').textContent = session.userName || 'Аноним';
+      
+      let html = '';
+      const answers = session.answers || {};
+      
+      questions.forEach((q, i) => {
+        const ans = answers[String(i)];
         let ansHtml = '';
-        if (ans === undefined || ans === null || ans === '') {
+        if (!ans) {
           ansHtml = '<div class="qa-answer empty">— (нет ответа)</div>';
         } else if (Array.isArray(ans)) {
-          if (ans.length === 0) ansHtml = '<div class="qa-answer empty">— (нет ответа)</div>';
-          else ansHtml = '<div>' + ans.map(a => \`<span class="qa-chip">\${a}</span>\`).join('') + '</div>';
+          ansHtml = '<div>' + ans.map(a => \`<span class="qa-chip">\${a}</span>\`).join('') + '</div>';
         } else {
           ansHtml = \`<div class="qa-answer">\${String(ans).replace(/\\n/g, '<br>')}</div>\`;
         }
-        bodyHtml += \`<div class="qa-item"><div class="qa-question">\${label}</div>\${ansHtml}</div>\`;
+        html += \`<div class="qa-item"><div class="qa-question">\${q}</div>\${ansHtml}</div>\`;
       });
 
-      document.getElementById('modalBody').innerHTML = bodyHtml;
+      document.getElementById('modalBody').innerHTML = html;
       document.getElementById('detailsModal').classList.remove('hidden');
     }
 
     function closeModal() { document.getElementById('detailsModal').classList.add('hidden'); }
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+    
+    function exportCSV() {
+      function csvCell(val) {
+        if (!val) return '';
+        const str = Array.isArray(val) ? val.join(' | ') : String(val);
+        if (str.includes(',') || str.includes('"') || str.includes('\\n')) return '"' + str.replace(/"/g, '""') + '"';
+        return str;
+      }
+      
+      const headers = ['Имя', 'Дата', 'Статус', ...questions.map((_,i) => \`Вопрос \${i+1}\`)];
+      let csv = headers.map(csvCell).join(',') + '\\n';
 
-    loadData();
-    setInterval(loadData, 15000);
+      allSessions.forEach(s => {
+        const row = [
+          s.userName || 'Аноним',
+          s.createdAt ? s.createdAt.toDate().toLocaleString('ru') : '',
+          s.status === 'finished' ? 'Завершён' : 'Активен'
+        ];
+        for(let i=0; i<20; i++) row.push(s.answers?.[String(i)] || '');
+        csv += row.map(csvCell).join(',') + '\\n';
+      });
+
+      const blob = new Blob(['\\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', 'anketa_export.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   </script>
 </body>
 </html>
