@@ -155,22 +155,34 @@
 
     let allSessions = [];
 
-    db.collection('sessions').orderBy('updatedAt', 'desc').onSnapshot(snapshot => {
-      allSessions = [];
-      let finished = 0, active = 0;
-      
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        allSessions.push({ id: doc.id, ...data });
-        if(data.status === 'finished') finished++; else active++;
-      });
+    db.collection('sessions').onSnapshot(
+      snapshot => {
+        allSessions = [];
+        let finished = 0, active = 0;
 
-      document.getElementById('statTotal').textContent = allSessions.length;
-      document.getElementById('statFinished').textContent = finished;
-      document.getElementById('statActive').textContent = active;
-      
-      renderTable();
-    });
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          allSessions.push({ id: doc.id, ...data });
+          if (data.status === 'finished') finished++; else active++;
+        });
+
+        allSessions.sort((a, b) => {
+          const ta = a.updatedAt?.toDate() || a.createdAt?.toDate() || 0;
+          const tb = b.updatedAt?.toDate() || b.createdAt?.toDate() || 0;
+          return tb - ta;
+        });
+
+        document.getElementById('statTotal').textContent = allSessions.length;
+        document.getElementById('statFinished').textContent = finished;
+        document.getElementById('statActive').textContent = active;
+
+        renderTable();
+      },
+      error => {
+        document.getElementById('sessionsTable').innerHTML =
+          '<tr><td colspan="4" style="text-align:center;color:#ef4444;">Ошибка загрузки: ' + error.message + '</td></tr>';
+      }
+    );
 
     function renderTable() {
       const tbody = document.getElementById('sessionsTable');

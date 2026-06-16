@@ -321,7 +321,7 @@ function showResult() {
       <p class="result-description">
         Ҷавобҳои шумо қабул шуд.
       </p>
-      <a href="https://t.me/jannat_abdullaeva_kanal" class="telegram-link" style="margin-top:20px; display:inline-block;">Ворид шудан ба дарс</a>
+      <a href="https://t.me/+wHJobpqzszxmZDUy" class="telegram-link" style="margin-top:20px; display:inline-block;">Ворид шудан ба дарс</a>
     </div>
   `;
 }
