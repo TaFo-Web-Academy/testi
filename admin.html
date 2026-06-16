@@ -193,15 +193,15 @@
 
       tbody.innerHTML = allSessions.map(s => {
         const date = s.createdAt ? s.createdAt.toDate().toLocaleString('ru') : '';
-        const progress = s.status === 'finished' ? '20/20 ✅' : \`\${s.currentQ || 0}/20\`;
-        return \`
-          <tr onclick="openModal('\${s.id}')">
-            <td><strong>\${s.userName || 'Аноним'}</strong></td>
-            <td>\${date}</td>
-            <td>\${progress}</td>
-            <td><span class="badge \${s.status}">\${s.status === 'finished' ? 'Завершён' : 'Активен'}</span></td>
+        const progress = s.status === 'finished' ? '20/20 ✅' : `${s.currentQ || 0}/20`;
+        return `
+          <tr onclick="openModal('${s.id}')">
+            <td><strong>${s.userName || 'Аноним'}</strong></td>
+            <td>${date}</td>
+            <td>${progress}</td>
+            <td><span class="badge ${s.status}">${s.status === 'finished' ? 'Завершён' : 'Активен'}</span></td>
           </tr>
-        \`;
+        `;
       }).join('');
     }
 
@@ -220,11 +220,11 @@
         if (!ans) {
           ansHtml = '<div class="qa-answer empty">— (нет ответа)</div>';
         } else if (Array.isArray(ans)) {
-          ansHtml = '<div>' + ans.map(a => \`<span class="qa-chip">\${a}</span>\`).join('') + '</div>';
+          ansHtml = '<div>' + ans.map(a => `<span class="qa-chip">${a}</span>`).join('') + '</div>';
         } else {
-          ansHtml = \`<div class="qa-answer">\${String(ans).replace(/\\n/g, '<br>')}</div>\`;
+          ansHtml = `<div class="qa-answer">${String(ans).replace(/\\n/g, '<br>')}</div>`;
         }
-        html += \`<div class="qa-item"><div class="qa-question">\${q}</div>\${ansHtml}</div>\`;
+        html += `<div class="qa-item"><div class="qa-question">${q}</div>${ansHtml}</div>`;
       });
 
       document.getElementById('modalBody').innerHTML = html;
@@ -241,7 +241,7 @@
         return str;
       }
       
-      const headers = ['Имя', 'Дата', 'Статус', ...questions.map((_,i) => \`Вопрос \${i+1}\`)];
+      const headers = ['Имя', 'Дата', 'Статус', ...questions.map((_,i) => `Вопрос ${i+1}`)];
       let csv = headers.map(csvCell).join(',') + '\\n';
 
       allSessions.forEach(s => {
