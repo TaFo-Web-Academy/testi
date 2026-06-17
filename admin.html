@@ -86,7 +86,8 @@
   <div class="header">
     <h1>Анкета - Панель (Firebase)</h1>
     <div>
-      <button class="btn" onclick="exportHTML()">Скачать Excel</button>
+      <button class="btn" onclick="exportHTML()">Скачать всё</button>
+      <button class="btn" onclick="exportHTML(true)" style="background:#10b981;">Скачать завершённые</button>
     </div>
   </div>
 
@@ -233,7 +234,7 @@
 
     function closeModal() { document.getElementById('detailsModal').classList.add('hidden'); }
     
-    function exportHTML() {
+    function exportHTML(onlyFinished) {
       function cell(val) {
         if (!val) return '<td></td>';
         const str = Array.isArray(val) ? val.join(' | ') : String(val);
@@ -242,8 +243,11 @@
 
       const qHeaders = questions.map((_, i) => `<th>Вопрос ${i + 1}</th>`).join('');
       let rows = '';
+      let count = 0;
 
       allSessions.forEach(s => {
+        if (onlyFinished && s.status !== 'finished') return;
+        count++;
         const name = s.userName || 'Аноним';
         const date = s.createdAt ? s.createdAt.toDate().toLocaleString('ru') : '';
         const status = s.status === 'finished' ? 'Завершён' : 'Активен';
@@ -252,11 +256,13 @@
         rows += `<tr>${cells}</tr>`;
       });
 
+      const label = onlyFinished ? 'Завершённые' : 'Все';
       const html = `<!DOCTYPE html>
 <html lang="ru">
-<head><meta charset="UTF-8"><title>Экспорт анкеты</title>
+<head><meta charset="UTF-8"><title>Экспорт анкеты — ${label} (${count})</title>
 <style>
   body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #f5f5f5; }
+  h2 { margin-bottom: 16px; color: #333; }
   table { border-collapse: collapse; width: 100%; background: #fff; }
   th, td { border: 1px solid #333; padding: 8px 12px; text-align: left; font-size: 13px; }
   th { background: #FFA500; color: #121212; font-weight: 700; }
@@ -264,6 +270,7 @@
   td { vertical-align: top; }
 </style></head>
 <body>
+<h2>${label} (${count})</h2>
 <table><thead><tr><th>Имя</th><th>Дата</th><th>Статус</th>${qHeaders}</tr></thead>
 <tbody>${rows}</tbody></table></body></html>`;
 
@@ -271,7 +278,7 @@
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.setAttribute('href', url);
-      link.setAttribute('download', 'anketa_export.html');
+      link.setAttribute('download', `anketa_${onlyFinished ? 'finished' : 'all'}.html`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
