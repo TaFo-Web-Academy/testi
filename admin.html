@@ -86,7 +86,7 @@
   <div class="header">
     <h1>Анкета - Панель (Firebase)</h1>
     <div>
-      <button class="btn" onclick="exportCSV()">Скачать CSV</button>
+      <button class="btn" onclick="exportHTML()">Скачать Excel</button>
     </div>
   </div>
 
@@ -233,33 +233,45 @@
 
     function closeModal() { document.getElementById('detailsModal').classList.add('hidden'); }
     
-    function exportCSV() {
-      function csvCell(val) {
-        if (!val) return '';
+    function exportHTML() {
+      function cell(val) {
+        if (!val) return '<td></td>';
         const str = Array.isArray(val) ? val.join(' | ') : String(val);
-        if (str.includes(',') || str.includes('"') || str.includes('\n')) return '"' + str.replace(/"/g, '""') + '"';
-        return str;
+        return `<td>${str.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</td>`;
       }
-      
-      const headers = ['Имя', 'Дата', 'Статус', ...questions.map((_,i) => `Вопрос ${i+1}`)];
-      const rows = [headers];
+
+      const qHeaders = questions.map((_, i) => `<th>Вопрос ${i + 1}</th>`).join('');
+      let rows = '';
 
       allSessions.forEach(s => {
-        const row = [
-          s.userName || 'Аноним',
-          s.createdAt ? s.createdAt.toDate().toLocaleString('ru') : '',
-          s.status === 'finished' ? 'Завершён' : 'Активен'
-        ];
-        for (let i = 0; i < 20; i++) row.push(s.answers?.[String(i)] || '');
-        rows.push(row);
+        const name = s.userName || 'Аноним';
+        const date = s.createdAt ? s.createdAt.toDate().toLocaleString('ru') : '';
+        const status = s.status === 'finished' ? 'Завершён' : 'Активен';
+        let cells = `<td><strong>${name}</strong></td><td>${date}</td><td>${status}</td>`;
+        for (let i = 0; i < 20; i++) cells += cell(s.answers?.[String(i)]);
+        rows += `<tr>${cells}</tr>`;
       });
 
-      const csv = rows.map(r => r.map(csvCell).join(',')).join('\r\n');
-      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+      const html = `<!DOCTYPE html>
+<html lang="ru">
+<head><meta charset="UTF-8"><title>Экспорт анкеты</title>
+<style>
+  body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #f5f5f5; }
+  table { border-collapse: collapse; width: 100%; background: #fff; }
+  th, td { border: 1px solid #333; padding: 8px 12px; text-align: left; font-size: 13px; }
+  th { background: #FFA500; color: #121212; font-weight: 700; }
+  tr:nth-child(even) { background: #f9f9f9; }
+  td { vertical-align: top; }
+</style></head>
+<body>
+<table><thead><tr><th>Имя</th><th>Дата</th><th>Статус</th>${qHeaders}</tr></thead>
+<tbody>${rows}</tbody></table></body></html>`;
+
+      const blob = new Blob([html], { type: 'text/html;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.setAttribute('href', url);
-      link.setAttribute('download', 'anketa_export.csv');
+      link.setAttribute('download', 'anketa_export.html');
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
