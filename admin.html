@@ -45,6 +45,30 @@
     .btn { padding: 8px 16px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; background: var(--primary); color: #121212; }
     .btn:hover { background: var(--primary-hover); }
 
+    /* Login */
+    .login-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.85); z-index: 2000;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px; backdrop-filter: blur(8px);
+    }
+    .login-overlay.hidden { display: none; }
+    .login-box {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; padding: 40px; max-width: 360px; width: 100%;
+      text-align: center;
+    }
+    .login-box h2 { color: var(--primary); margin-bottom: 4px; }
+    .login-input {
+      width: 100%; padding: 14px 18px; font-size: 1rem;
+      background: var(--surface-light); border: 1.5px solid var(--border);
+      border-radius: 12px; color: var(--text); outline: none;
+      transition: border 0.2s;
+    }
+    .login-input:focus { border-color: var(--primary); }
+    .login-btn { width: 100%; margin-top: 16px; padding: 14px; font-size: 1rem; }
+    .admin-content { display: block; }
+
     /* Modal */
     .modal-overlay {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -83,6 +107,36 @@
 </head>
 <body>
 
+  <!-- LOGIN OVERLAY -->
+  <div class="login-overlay hidden" id="loginOverlay">
+    <div class="login-box">
+      <h2>🔒 Админ панель</h2>
+      <p style="margin:8px 0 16px;color:var(--text-secondary);font-size:0.85rem;">Введите пароль для доступа</p>
+      <input type="password" id="passInput" class="login-input" placeholder="Пароль" onkeydown="if(event.key==='Enter')checkPass()">
+      <div id="loginError" style="color:var(--danger);font-size:0.8rem;margin-top:8px;display:none;">Неверный пароль</div>
+      <button class="btn login-btn" onclick="checkPass()">Войти</button>
+    </div>
+  </div>
+
+  <script>
+    const ADMIN_PASS = btoa('Tifix2020');
+    function checkPass() {
+      const val = document.getElementById('passInput').value;
+      if (btoa(val) === ADMIN_PASS) {
+        sessionStorage.setItem('admin_auth', '1');
+        document.getElementById('loginOverlay').classList.add('hidden');
+      } else {
+        document.getElementById('loginError').style.display = 'block';
+      }
+    }
+    if (sessionStorage.getItem('admin_auth') !== '1') {
+      document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('loginOverlay').classList.remove('hidden');
+      });
+    }
+  </script>
+
+  <div class="admin-content" id="adminContent">
   <div class="header">
     <h1>Анкета - Панель (Firebase)</h1>
     <div>
@@ -327,5 +381,6 @@ ${cards}</body></html>`;
       document.body.removeChild(link);
     }
   </script>
+</div>
 </body>
 </html>
